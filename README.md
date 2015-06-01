@@ -13,3 +13,6 @@ Satellite Configuration:
 - Create ContentViews
 - Create Activation Keys (Planned)
 . Craate Hosts Groups and Host Collection (Planned)
+
+INPORTANT: This utility is privately developed and not releated to Red Hat in any way
+
