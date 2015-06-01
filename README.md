@@ -16,3 +16,6 @@ Satellite Configuration:
 
 INPORTANT: This utility is privately developed and not releated to Red Hat in any way
 
+USAGE: ./satellite_setup.sh <cfg.env>  # ie. RHS61_CFG_01.env
+
+The RHS61_CFG_01.env is a default configuration and can be copied and modified for personal use. 
