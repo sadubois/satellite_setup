@@ -27,7 +27,7 @@ HFILE="/root/.hammer/cli_config.yml"
 echo ":modules:"                             >  $HFILE
 echo "   - hammer_cli_foreman"               >> $HFILE
 echo ":foreman:"                             >> $HFILE
-echo "  :host: 'https://sat61.rhlab.local/'" >> $HFILE
+echo "  :host: 'https://${SATELLITE}/'"      >> $HFILE
 echo "  :username: '${SAT_ADMIN}'"           >> $HFILE
 echo "  :password: '${SAT_PASS}'"            >> $HFILE
 
@@ -64,12 +64,16 @@ if [ ! -f ${MANIFEST} ]; then
   echo "ERROR: Manifest: ${MANIFEST} not found, aborting"; exit 0
 fi
 
-echo "Upload manifest: ${MANIFEST} (created in RH Portal)"
 # Upload our manifest.zip (created in RH Portal) to our org
 # hammer subscription list --organization "Red Hat Demo"
-cnt=`hammer subscription list --organization "${ORG_NAME}" | egrep -v "Red Hat Enterprise Linux Server|---|NAME" | wc -l`
+cnt=`hammer subscription list --organization "${ORG_NAME}" | egrep -v "Unlimited|---|NAME" | wc -l`
 if [ ${cnt} -eq 0 ]; then
+  echo "Upload manifest: ${MANIFEST} (created in RH Portal)"
   hammer subscription upload --file ${MANIFEST} --organization="${ORG_NAME}"
+  ret=`echo $?`
+  if [ ${cnt} -eq 0 ]; then
+    echo "Upload manifest: failed, please verify"; exit 1
+  fi
 fi
 
 # --- DUMP PRODUCTS ---
@@ -117,7 +121,7 @@ for ppp in `egrep "^PRODUCT" $CFGFILE | awk -F'|' '{ print $2 }' | sort | uniq |
     done
   fi
 
-  if [ "${mod}" = "REPOSET1" ]; then
+  if [ "${mod}" = "REPOSET" ]; then
     for rrr in `grep "PRODUCT|${prd}|" $CFGFILE | awk -F'|' '{ print $4 }' | sort | uniq | sed 's/ /_@_/g'`; do
       rep=`echo $rrr | sed 's/_@_/ /g'`
 
@@ -153,5 +157,5 @@ done
 
 # --- CREATE HOST-GROUP ---
 # hammer hostgroup create --help
-
+hammer hostgroup create --organizations "${ORG_NAME}" --name QE --content-source-id 1  --puppet-ca-proxy `hostname` --puppet-proxy `hostname`
 
